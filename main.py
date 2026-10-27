@@ -1,0 +1,7 @@
+import preprocess
+
+#[LONGITUDE,LATITUDE,DEATHS_A,DEATHS_B,DEATHS_CIVILIANS,BEST,TYPE_OF_VIOLENCE,DURATION_DAYS,SIDE_B]
+processed_data = preprocess.preprocess('conflict_data_phl.csv')
+
+for row in processed_data:
+    print(row)
