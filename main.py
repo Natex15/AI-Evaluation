@@ -8,6 +8,8 @@ for row in processed_data:
     print(row)
 
 train, test = split.split_dataset(processed_data)
+train = preprocess.classify_groups(train)
+test = preprocess.classify_groups(test)
 
 print(len(train))
 for row in train:
