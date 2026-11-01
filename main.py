@@ -10,6 +10,10 @@ processed_data = preprocess.preprocess('conflict_data_phl.csv')
 
 train, test = split.split_dataset(processed_data)
 
+# Classify groups into binary: CPP (0) vs Mindanao Groups (1)
+train = preprocess.classify_groups(train)
+test = preprocess.classify_groups(test)
+
 # Gaussian Naive Bayes
 nb_model = NB_Classifier()
 nb_model.fit(train)
@@ -23,10 +27,7 @@ with open('nb_predictions.csv', 'w', newline='', encoding='utf-8') as file:
         predicted_label = nb_predictions[sample_index]
         writer.writerow([actual_label, predicted_label])
 
-# Linear Perceptron (CPP vs Mindanao Groups)
-train = preprocess.classify_groups(train)
-test = preprocess.classify_groups(test)
-
+# Linear Perceptron
 perceptron_model = Perceptron()
 perceptron_model.fit(train)
 perceptron_predictions = perceptron_model.predict(test)

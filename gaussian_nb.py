@@ -1,4 +1,8 @@
+import csv
+import preprocess
+import split
 import math
+
 
 class NB_Classifier:
     def __init__(self, smoothing=1e-9):
@@ -80,12 +84,10 @@ class NB_Classifier:
 GaussianNB = NB_Classifier
 
 if __name__ == "__main__":
-    import csv
-    import preprocess
-    import split
-
     data = preprocess.preprocess('conflict_data_phl.csv')
     train_data, test_data = split.split_dataset(data)
+    train_data = preprocess.classify_groups(train_data)
+    test_data = preprocess.classify_groups(test_data)
 
     model = NB_Classifier()
     model.fit(train_data)
