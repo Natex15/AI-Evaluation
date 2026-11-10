@@ -29,8 +29,8 @@ TYPE_OF_VIOLENCE = 5
 DATE_START = 39  # Used to compute duration_days
 DATE_END = 40  # Used to compute duration_days
 
-# Excluded data
-EXCLUDED = ["Civilians","Government of Kuwait","Military faction (forces of Honasan, Abenina & Zumel)"]
+# Other Groups
+OTHERS = ["Civilians","Government of Kuwait","Military faction (forces of Honasan, Abenina & Zumel)"]
 
 TARGET_IDX = -1
 
@@ -43,9 +43,6 @@ def preprocess(csv_file):
     raw_data = load_data(csv_file)
     preprocessed = []
     for row in raw_data[1:]: #[LONGITUDE,LATITUDE,DEATHS_A,DEATHS_B,DEATHS_CIVILIANS,BEST,TYPE_OF_VIOLENCE,DURATION_DAYS,SIDE_B]
-        #Exclude Civilians since it is already in the input, and other unrelated to Insurgency and Mindanao
-        if row[SIDE_B] in EXCLUDED:
-            continue
         #Process date first
         duration = 0
         if row[DATE_START] != "" and row[DATE_END] != "":
@@ -56,10 +53,12 @@ def preprocess(csv_file):
 
     return preprocessed
 
-def classify_groups(data): #Changes Insurgency to 0 and others to 1, which is the mindanao groups
+def classify_groups(data): #Changes Insurgency to 0 and others to 1, which is the mindanao groups, class 2 which is the others/excluded
     for row in data:
         if row[TARGET_IDX] == "CPP":
             row[TARGET_IDX] = 0
+        elif row[TARGET_IDX] in OTHERS:
+            row[TARGET_IDX] = 2
         else:
             row[TARGET_IDX] = 1
     return data
