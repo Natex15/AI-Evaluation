@@ -62,3 +62,9 @@ def classify_groups(data): #Changes Insurgency to 0 and others to 1, which is th
         else:
             row[TARGET_IDX] = 1
     return data
+
+def get_target(data):
+    actual = []
+    for row in data:
+        actual.append(row[TARGET_IDX])
+    return actual
