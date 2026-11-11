@@ -6,6 +6,7 @@ from perceptron import Perceptron
 from knn import KNN
 import macrof1
 import recall_precision
+import confusion_matrix
 
 #[LONGITUDE,LATITUDE,DEATHS_A,DEATHS_B,DEATHS_CIVILIANS,BEST,TYPE_OF_VIOLENCE,DURATION_DAYS,SIDE_B]
 processed_data = preprocess.preprocess('conflict_data_phl.csv')
@@ -87,4 +88,13 @@ print(f"K-Nearest Neighbors  - Recall: {recall_precision.recall(test_actual, knn
 print("Macro F1 Scores:")
 print("Gaussian Naive Bayes: " + str(macrof1.macrof1(test_actual, nb_predictions)))
 print("Perceptron: " + str(macrof1.macrof1(test_actual, perceptron_predictions)))
-print("K-Nearest Neighbors: " + str(macrof1.macrof1(test_actual, knn_predictions)))
+print("K-Nearest Neighbors: " + str(macrof1.macrof1(test_actual, knn_predictions)) + "\n")
+
+# print confusion matrices for each model
+print("Confusion Matrices (Classes: 0=CPP, 1=Mindanao, 2=Others):")
+print("Gaussian Naive Bayes:")
+confusion_matrix.print_confusion_matrix(confusion_matrix.confusion_matrix(test_actual, nb_predictions, classes=[0, 1, 2]), classes=[0, 1, 2])
+print("\nPerceptron:")
+confusion_matrix.print_confusion_matrix(confusion_matrix.confusion_matrix(test_actual, perceptron_predictions, classes=[0, 1, 2]), classes=[0, 1, 2])
+print("\nK-Nearest Neighbors:")
+confusion_matrix.print_confusion_matrix(confusion_matrix.confusion_matrix(test_actual, knn_predictions, classes=[0, 1, 2]), classes=[0, 1, 2])
