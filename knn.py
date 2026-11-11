@@ -29,7 +29,18 @@ class KNN:
                 distances.append((d,train[SIDE_B]))
             distances.sort()
             distances = distances[:self.k]
-            prediction = 0 if sum([d[1] for d in distances]) < self.k/2 else 1
+            
+            counts = self.counter(distances)
+            # Check for equal max counts, if max, pops until not equal, meaning the closest is the one that is picked
+            while (max(counts) == counts[0] and max(counts) == counts[1]) or (max(counts) == counts[1] and max(counts) == counts[2]) or (max(counts) == counts[0] and max(counts) == counts[2]):
+                distances.pop()
+                counts = self.counter(distances)
+            prediction = counts.index(max(counts))
             result.append(prediction)
         return result
             
+    def counter(self, distances): # Returns the count list
+        counts = [0,0,0]
+        for distance in distances:
+            counts[int(distance[1])]+=1
+        return counts
