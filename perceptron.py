@@ -1,3 +1,4 @@
+# step activation function
 def sgn(value):
     if value > 0:
         return 1
@@ -6,76 +7,103 @@ def sgn(value):
 
 
 class Perceptron:
+    # initialize perceptron hyperparameters
     def __init__(self, learning_rate=0.01, max_epochs=100, initial_bias=0.0):
         self.learning_rate = learning_rate
         self.max_epochs = max_epochs
-        self.bias = initial_bias
+        self.initial_bias = initial_bias
         self.weights = []
+        self.biases = []
         self.classes = []
 
+    # train one-vs-rest perceptron models on training data
     def fit(self, train_data):
+        # collect unique classes from training data
         unique_classes = []
-        for sample_row in train_data:
-            label = sample_row[-1]
+        for i in range(len(train_data)):
+            label = train_data[i][-1]
             if label not in unique_classes:
                 unique_classes.append(label)
+        unique_classes.sort()
         self.classes = unique_classes
 
         num_features = len(train_data[0]) - 1
 
+        # initialize weights and biases for each class using i and j
         self.weights = []
-        for feature_index in range(num_features):
-            self.weights.append(0.0)
+        self.biases = []
+        for i in range(len(self.classes)):
+            row = []
+            for j in range(num_features):
+                row.append(0.0)
+            self.weights.append(row)
+            self.biases.append(self.initial_bias)
 
-        for epoch in range(self.max_epochs):
-            weight_updated = False
+        # train one perceptron per class using one-vs-rest
+        for i in range(len(self.classes)):
+            target_class = self.classes[i]
 
-            for sample_row in train_data:
-                features = sample_row[:-1]
-                label = sample_row[-1]
+            # run training epochs for current class
+            for epoch in range(self.max_epochs):
+                weight_updated = False
 
-                if label == self.classes[-1]:
-                    target_value = 1
-                else:
-                    target_value = -1
+                # iterate over all training samples
+                for row_idx in range(len(train_data)):
+                    sample = train_data[row_idx]
+                    features = sample[:-1]
+                    label = sample[-1]
 
-                linear_combination = 0.0
-                for feature_index in range(num_features):
-                    linear_combination += self.weights[feature_index] * features[feature_index]
-                linear_combination += self.bias
+                    # assign target value 1 for current class and -1 for others
+                    if label == target_class:
+                        target_value = 1
+                    else:
+                        target_value = -1
 
-                predicted_value = sgn(linear_combination)
+                    # calculate linear combination score
+                    linear_combination = self.biases[i]
+                    for j in range(num_features):
+                        linear_combination += self.weights[i][j] * features[j]
 
-                if predicted_value != target_value:
-                    difference = target_value - predicted_value
-                    learning_step = self.learning_rate * difference
+                    predicted_value = sgn(linear_combination)
 
-                    for feature_index in range(num_features):
-                        self.weights[feature_index] += learning_step * features[feature_index]
-                    self.bias += learning_step
+                    # update weights and bias when prediction is incorrect
+                    if predicted_value != target_value:
+                        difference = target_value - predicted_value
+                        learning_step = self.learning_rate * difference
 
-                    weight_updated = True
+                        for j in range(num_features):
+                            self.weights[i][j] += learning_step * features[j]
+                        self.biases[i] += learning_step
+                        weight_updated = True
 
-            if not weight_updated:
-                break
+                # stop early if no weights were updated in epoch
+                if not weight_updated:
+                    break
 
+    # predict class with highest linear score
     def predict_one(self, features):
-        linear_combination = 0.0
-        for feature_index in range(len(features)):
-            linear_combination += self.weights[feature_index] * features[feature_index]
-        linear_combination += self.bias
+        best_score = -float("inf")
+        best_class = self.classes[0]
 
-        predicted_value = sgn(linear_combination)
+        # calculate score for each class
+        for i in range(len(self.classes)):
+            linear_combination = self.biases[i]
+            for j in range(len(features)):
+                linear_combination += self.weights[i][j] * features[j]
 
-        if predicted_value == 1:
-            return self.classes[-1]
-        else:
-            return self.classes[0]
+            # update best class if higher score is found
+            if linear_combination > best_score:
+                best_score = linear_combination
+                best_class = self.classes[i]
 
+        return best_class
+
+    # predict labels for all test samples
     def predict(self, test_data):
         predictions = []
-        for sample_row in test_data:
-            num_features = len(self.weights)
+        for i in range(len(test_data)):
+            sample_row = test_data[i]
+            num_features = len(self.weights[0])
             if len(sample_row) > num_features:
                 features = sample_row[:-1]
             else:
