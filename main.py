@@ -44,7 +44,7 @@ with open('perceptron_predictions.csv', 'w', newline='', encoding='utf-8') as fi
         writer.writerow([actual_label, predicted_label])
 
 # K-Nearest Neighbors
-knn_model = KNN(k = 5, p = 2)
+knn_model = KNN(k = 3, p = 2)
 knn_model.fit(train)
 knn_predictions = knn_model.predict(test)
 
