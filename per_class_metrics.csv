@@ -1,0 +1,10 @@
+Model,Class_ID,Class_Label,Support,Precision_Pct,Recall_Class_Accuracy_Pct,Class_F1_Pct
+Gaussian Naive Bayes,0,0 (CPP),428,57.3171,98.8318,72.5557
+Gaussian Naive Bayes,1,1 (Mindanao),333,75.0000,3.6036,6.8768
+Gaussian Naive Bayes,2,2 (Others),121,92.1875,97.5207,94.7791
+Linear Perceptron,0,0 (CPP),428,65.0502,90.8879,75.8285
+Linear Perceptron,1,1 (Mindanao),333,86.2676,73.5736,79.4165
+Linear Perceptron,2,2 (Others),121,0.0000,0.0000,0.0000
+K-Nearest Neighbors (k=3),0,0 (CPP),428,93.7799,91.5888,92.6714
+K-Nearest Neighbors (k=3),1,1 (Mindanao),333,89.8844,93.3934,91.6053
+K-Nearest Neighbors (k=3),2,2 (Others),121,96.6102,94.2149,95.3975

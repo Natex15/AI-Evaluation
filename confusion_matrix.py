@@ -67,3 +67,34 @@ def print_confusion_matrix(matrix, classes=None):
         for j in range(len(matrix[i])):
             row_str = row_str + f"{matrix[i][j]:>8}"
         print(row_str)
+
+
+# print formatted confusion matrix table with raw counts and row-normalized percentages
+def print_confusion_matrix_detailed(matrix):
+    classes = [i for i in range(len(matrix))]
+    class_names = {0: "0 (CPP)", 1: "1 (Mindanao)", 2: "2 (Others)"}
+
+    labels = [class_names.get(c, str(c)) for c in classes]
+
+    header = f"{'Actual \\ Predicted':<18}"
+    for label in labels:
+        header += f" | {label:>16}"
+    header += f" | {'Support':>8}"
+    separator = "-" * len(header)
+
+    print(separator)
+    print(header)
+    print(separator)
+
+    for i in range(len(matrix)):
+        row_total = sum(matrix[i])
+        row_str = f"{labels[i]:<18}"
+        for j in range(len(matrix[i])):
+            count = matrix[i][j]
+            pct = (count / row_total * 100.0) if row_total > 0 else 0.0
+            cell = f"{count} ({pct:5.1f}%)"
+            row_str += f" | {cell:>16}"
+        row_str += f" | {row_total:>8}"
+        print(row_str)
+    print(separator)
+

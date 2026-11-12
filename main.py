@@ -7,6 +7,8 @@ from knn import KNN
 import macrof1
 import recall_precision
 import confusion_matrix
+import balanced_accuracy
+import compare_models
 
 #[LONGITUDE,LATITUDE,DEATHS_A,DEATHS_B,DEATHS_CIVILIANS,BEST,TYPE_OF_VIOLENCE,DURATION_DAYS,SIDE_B]
 processed_data = preprocess.preprocess('conflict_data_phl.csv')
@@ -73,28 +75,10 @@ print(f"Dataset Dimensions: {total_rows} rows x {total_cols} columns ({num_featu
 print(f"Training Set Size: {len(train)}")
 print(f"Testing Set Size (Number of Tests): {len(test)}\n")
 
-print("Correct Predictions (Correct / Total Tests):")
-print(f"Gaussian Naive Bayes: {nb_correct} / {len(test)} ({(nb_correct / len(test)) * 100:.2f}%)")
-print(f"Perceptron: {perceptron_correct} / {len(test)} ({(perceptron_correct / len(test)) * 100:.2f}%)")
-print(f"K-Nearest Neighbors: {knn_correct} / {len(test)} ({(knn_correct / len(test)) * 100:.2f}%)\n")
+model_predictions = [
+    ("Gaussian Naive Bayes", nb_predictions),
+    ("Linear Perceptron", perceptron_predictions),
+    ("K-Nearest Neighbors (k=3)", knn_predictions),
+]
 
-print("Evaluation Metrics:\n")
-
-print("Recall and Precisions (Macro-Averaged):") #Macro averaged just means averaged per class
-print(f"Gaussian Naive Bayes - Recall: {recall_precision.recall(test_actual, nb_predictions)}, Precision: {recall_precision.precision(test_actual, nb_predictions)}")
-print(f"Perceptron           - Recall: {recall_precision.recall(test_actual, perceptron_predictions)}, Precision: {recall_precision.precision(test_actual, perceptron_predictions)}")
-print(f"K-Nearest Neighbors  - Recall: {recall_precision.recall(test_actual, knn_predictions)}, Precision: {recall_precision.precision(test_actual, knn_predictions)}\n")
-
-print("Macro F1 Scores:")
-print("Gaussian Naive Bayes: " + str(macrof1.macrof1(test_actual, nb_predictions)))
-print("Perceptron: " + str(macrof1.macrof1(test_actual, perceptron_predictions)))
-print("K-Nearest Neighbors: " + str(macrof1.macrof1(test_actual, knn_predictions)) + "\n")
-
-# print confusion matrices for each model
-print("Confusion Matrices (Classes: 0=CPP, 1=Mindanao, 2=Others):")
-print("Gaussian Naive Bayes:")
-confusion_matrix.print_confusion_matrix(confusion_matrix.confusion_matrix(test_actual, nb_predictions, classes=[0, 1, 2]), classes=[0, 1, 2])
-print("\nPerceptron:")
-confusion_matrix.print_confusion_matrix(confusion_matrix.confusion_matrix(test_actual, perceptron_predictions, classes=[0, 1, 2]), classes=[0, 1, 2])
-print("\nK-Nearest Neighbors:")
-confusion_matrix.print_confusion_matrix(confusion_matrix.confusion_matrix(test_actual, knn_predictions, classes=[0, 1, 2]), classes=[0, 1, 2])
+compare_models.table_comparison(test_actual, model_predictions)
