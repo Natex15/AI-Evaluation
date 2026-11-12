@@ -1,4 +1,4 @@
 Model,Correct,Total,Standard_Accuracy_Pct,Balanced_Accuracy_Pct,Macro_Precision_Pct,Macro_Recall_Pct,Macro_F1_Pct
 Gaussian Naive Bayes,553,882,62.6984,66.6520,74.8349,66.6520,58.0706
-Linear Perceptron,634,882,71.8821,54.8205,50.4393,54.8205,51.7483
+Linear Perceptron,739,882,83.7868,87.6258,86.5595,87.6258,86.4263
 K-Nearest Neighbors (k=3),817,882,92.6304,93.0657,93.4248,93.0657,93.2247

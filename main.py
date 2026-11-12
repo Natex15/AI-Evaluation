@@ -82,3 +82,4 @@ model_predictions = [
 ]
 
 compare_models.table_comparison(test_actual, model_predictions)
+compare_models.graph_comparison(test_actual, model_predictions)

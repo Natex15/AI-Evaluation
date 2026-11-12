@@ -1,4 +1,6 @@
 import csv
+import os
+import matplotlib.pyplot as plt
 import balanced_accuracy
 import confusion_matrix
 import macrof1
@@ -191,6 +193,162 @@ def export_tables_to_csv(
             ])
 
 
+def plot_confusion_matrices_heatmap(
+    test_actual,
+    model_predictions,
+    save_path="plots/confusion_matrices_heatmap.png"
+):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    tick_labels = ["CPP (0)", "Mindanao (1)", "Others (2)"]
+
+    matrices = []
+    max_val = 0
+    for _, predictions in model_predictions:
+        mat = confusion_matrix.confusion_matrix(test_actual, predictions, classes=[0, 1, 2])
+        matrices.append(mat)
+        for row in mat:
+            for val in row:
+                if val > max_val:
+                    max_val = val
+
+    vmax = max(max_val, 450)
+
+    fig, axes = plt.subplots(1, 3, figsize=(17, 5.2), constrained_layout=True)
+    fig.suptitle(
+        "Graph 2: Side-by-Side Confusion Matrices (Raw Count & Class Recall %)",
+        fontsize=14,
+        fontweight="bold"
+    )
+
+    im = None
+    for idx, (model_name, _) in enumerate(model_predictions):
+        ax = axes[idx]
+        matrix = matrices[idx]
+        im = ax.imshow(matrix, cmap="Blues", vmin=0, vmax=vmax)
+
+        ax.set_title(model_name, fontsize=12, fontweight="bold", pad=10)
+        ax.set_xticks([0, 1, 2])
+        ax.set_xticklabels(tick_labels, fontsize=10)
+        ax.set_yticks([0, 1, 2])
+        ax.set_yticklabels(tick_labels, fontsize=10)
+        ax.set_xlabel("Predicted Label", fontsize=10, fontweight="bold")
+        if idx == 0:
+            ax.set_ylabel("Actual Label", fontsize=10, fontweight="bold")
+
+        for i in range(len(matrix)):
+            row_total = sum(matrix[i])
+            for j in range(len(matrix[i])):
+                count = matrix[i][j]
+                row_pct = (count / row_total * 100.0) if row_total > 0 else 0.0
+                text_color = "white" if count > (vmax * 0.5) else "black"
+                ax.text(
+                    j,
+                    i,
+                    f"{count}\n({row_pct:.1f}%)",
+                    ha="center",
+                    va="center",
+                    color=text_color,
+                    fontsize=10,
+                    fontweight="bold"
+                )
+
+    cbar = fig.colorbar(im, ax=axes.ravel().tolist(), shrink=0.82, pad=0.02)
+    cbar.set_label("Number of Samples", fontsize=10)
+
+    plt.savefig(save_path, dpi=300)
+    plt.close(fig)
+    print(f"Saved Graph 2 to '{save_path}'.")
+
+
+def plot_per_class_breakdown(
+    per_class_rows,
+    model_predictions,
+    save_path="plots/per_class_breakdown.png"
+):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    class_labels = ["CPP (0)", "Mindanao (1)", "Others (2)"]
+    x_indices = [0, 1, 2]
+    width = 0.25
+    offsets = [-width, 0.0, width]
+    colors = ["#4C72B0", "#DD8452", "#55A868"]
+
+    model_names = [name for name, _ in model_predictions]
+
+    recall_by_model = {name: [0.0, 0.0, 0.0] for name in model_names}
+    f1_by_model = {name: [0.0, 0.0, 0.0] for name in model_names}
+
+    for row in per_class_rows:
+        m_name = row["model"]
+        c_id = row["class_id"]
+        recall_by_model[m_name][c_id] = row["recall"] / 100.0
+        f1_by_model[m_name][c_id] = row["f1"] / 100.0
+
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6), constrained_layout=True)
+    fig.suptitle(
+        "Graph 3: Per-Class Recall & F1-Score Breakdown Across Models",
+        fontsize=14,
+        fontweight="bold"
+    )
+
+    # Left subplot: Per-Class Recall (Components of Balanced Accuracy)
+    ax_rec = axes[0]
+    for idx, m_name in enumerate(model_names):
+        positions = [x + offsets[idx] for x in x_indices]
+        bars = ax_rec.bar(
+            positions,
+            recall_by_model[m_name],
+            width=width,
+            label=m_name,
+            color=colors[idx],
+            edgecolor="black",
+            linewidth=0.6
+        )
+        ax_rec.bar_label(bars, fmt="%.2f", padding=3, fontsize=9)
+
+    ax_rec.set_title("Per-Class Recall (Balanced Accuracy Components)", fontsize=12, fontweight="bold")
+    ax_rec.set_xlabel("Target Class", fontsize=11)
+    ax_rec.set_ylabel("Recall Score", fontsize=11)
+    ax_rec.set_xticks(x_indices)
+    ax_rec.set_xticklabels(class_labels, fontsize=10)
+    ax_rec.set_ylim(0, 1.18)
+    ax_rec.grid(axis="y", linestyle="--", alpha=0.6)
+    ax_rec.legend(loc="upper center", ncol=3, fontsize=9, frameon=True)
+
+    # Right subplot: Per-Class F1 Score (Components of Macro F1)
+    ax_f1 = axes[1]
+    for idx, m_name in enumerate(model_names):
+        positions = [x + offsets[idx] for x in x_indices]
+        bars = ax_f1.bar(
+            positions,
+            f1_by_model[m_name],
+            width=width,
+            label=m_name,
+            color=colors[idx],
+            edgecolor="black",
+            linewidth=0.6
+        )
+        ax_f1.bar_label(bars, fmt="%.2f", padding=3, fontsize=9)
+
+    ax_f1.set_title("Per-Class F1 Score (Macro F1 Components)", fontsize=12, fontweight="bold")
+    ax_f1.set_xlabel("Target Class", fontsize=11)
+    ax_f1.set_ylabel("F1 Score", fontsize=11)
+    ax_f1.set_xticks(x_indices)
+    ax_f1.set_xticklabels(class_labels, fontsize=10)
+    ax_f1.set_ylim(0, 1.18)
+    ax_f1.grid(axis="y", linestyle="--", alpha=0.6)
+    ax_f1.legend(loc="upper center", ncol=3, fontsize=9, frameon=True)
+
+    plt.savefig(save_path, dpi=300)
+    plt.close(fig)
+    print(f"Saved Graph 3 to '{save_path}'.")
+
+
+def graph_comparison(test_actual, model_predictions):
+    per_class_rows = build_per_class_breakdown(test_actual, model_predictions)
+    plot_confusion_matrices_heatmap(test_actual, model_predictions)
+    plot_per_class_breakdown(per_class_rows, model_predictions)
+
+
 def table_comparison(test_actual, model_predictions):
     summary_rows = build_overall_summary(test_actual, model_predictions)
     per_class_rows = build_per_class_breakdown(test_actual, model_predictions)
@@ -214,3 +372,4 @@ if __name__ == "__main__":
         ("K-Nearest Neighbors (k=3)", knn_pred),
     ]
     table_comparison(nb_actual, models)
+    graph_comparison(nb_actual, models)
