@@ -343,8 +343,79 @@ def plot_per_class_breakdown(
     print(f"Saved Graph 3 to '{save_path}'.")
 
 
+# plot graph 1: grouped bar chart for overall metrics
+def plot_overall_metrics_comparison(
+    test_actual,
+    model_predictions,
+    save_path="plots/overall_metrics_comparison.png"
+):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    model_labels = ["Gaussian NB", "Perceptron", "KNN (k=3)"]
+    x = [0, 1, 2]
+    width = 0.25
+
+    # compute macro f1, balanced accuracy, and standard accuracy for each model
+    macro_f1_scores = []
+    balanced_acc_scores = []
+    standard_acc_scores = []
+    total_tests = len(test_actual)
+
+    for i in range(len(model_predictions)):
+        predictions = model_predictions[i][1]
+        macro_f1_scores.append(macrof1.macrof1(test_actual, predictions))
+        balanced_acc_scores.append(balanced_accuracy.balanced_accuracy(test_actual, predictions))
+        standard_acc_scores.append(recall_precision.count_correct(test_actual, predictions) / total_tests)
+
+    # initialize figure and axis
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # plot grouped bars for macro f1, balanced accuracy, and standard accuracy
+    bars_f1 = ax.bar(
+        [pos - width for pos in x],
+        macro_f1_scores,
+        width=width,
+        label="Macro F1",
+        color="#4C72B0"
+    )
+    bars_bal = ax.bar(
+        x,
+        balanced_acc_scores,
+        width=width,
+        label="Balanced Accuracy",
+        color="#55A868"
+    )
+    bars_std = ax.bar(
+        [pos + width for pos in x],
+        standard_acc_scores,
+        width=width,
+        label="Standard Accuracy",
+        color="#C44E52"
+    )
+
+    # add data labels above each bar
+    ax.bar_label(bars_f1, fmt="%.3f", padding=3, fontsize=9)
+    ax.bar_label(bars_bal, fmt="%.3f", padding=3, fontsize=9)
+    ax.bar_label(bars_std, fmt="%.3f", padding=3, fontsize=9)
+
+    # configure axis styling, limits, grid, and legend
+    ax.set_title("Graph 1: Overall Metrics Comparison (Macro F1 vs. Balanced Accuracy vs. Standard Accuracy)", fontsize=13, fontweight="bold")
+    ax.set_ylabel("Score", fontsize=11)
+    ax.set_xticks(x)
+    ax.set_xticklabels(model_labels, fontsize=10)
+    ax.set_ylim(0, 1.12)
+    ax.grid(axis="y", linestyle="--", alpha=0.6)
+    ax.legend(loc="upper left", frameon=True)
+
+    # save plot to output path
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300)
+    plt.close(fig)
+    print(f"Saved Graph 1 to '{save_path}'.")
+
+
 def graph_comparison(test_actual, model_predictions):
     per_class_rows = build_per_class_breakdown(test_actual, model_predictions)
+    plot_overall_metrics_comparison(test_actual, model_predictions)
     plot_confusion_matrices_heatmap(test_actual, model_predictions)
     plot_per_class_breakdown(per_class_rows, model_predictions)
 
