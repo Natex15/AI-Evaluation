@@ -12,9 +12,9 @@ python3 main.py
 - KNN
 
 ### Prediction Result Files
-- nb_predictions.csv
-- perceptron_predictions.csv
-- knn_predictions.csv
+- plots/nb_predictions.csv
+- plots/perceptron_predictions.csv
+- plots/knn_predictions.csv
 
 ### Main Dataset
 - conflict_data_phl.csv

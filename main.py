@@ -1,4 +1,5 @@
 import csv
+import os
 import preprocess
 import split
 from gaussian_nb import NB_Classifier
@@ -24,7 +25,9 @@ nb_model = NB_Classifier()
 nb_model.fit(train)
 nb_predictions = nb_model.predict(test)
 
-with open('nb_predictions.csv', 'w', newline='', encoding='utf-8') as file:
+os.makedirs('plots', exist_ok=True)
+
+with open('plots/nb_predictions.csv', 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(['actual', 'predicted'])
     for sample_index in range(len(test)):
@@ -37,7 +40,7 @@ perceptron_model = Perceptron()
 perceptron_model.fit(train)
 perceptron_predictions = perceptron_model.predict(test)
 
-with open('perceptron_predictions.csv', 'w', newline='', encoding='utf-8') as file:
+with open('plots/perceptron_predictions.csv', 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(['actual', 'predicted'])
     for sample_index in range(len(test)):
@@ -50,7 +53,7 @@ knn_model = KNN(k = 3, p = 2)
 knn_model.fit(train)
 knn_predictions = knn_model.predict(test)
 
-with open('knn_predictions.csv', 'w', newline='', encoding='utf-8') as file:
+with open('plots/knn_predictions.csv', 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(['actual', 'predicted'])
     for sample_index in range(len(test)):

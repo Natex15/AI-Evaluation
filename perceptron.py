@@ -130,7 +130,9 @@ if __name__ == "__main__":
     model.fit(train_data)
     predictions = model.predict(test_data)
 
-    with open('perceptron_predictions.csv', 'w', newline='', encoding='utf-8') as file:
+    import os
+    os.makedirs('plots', exist_ok=True)
+    with open('plots/perceptron_predictions.csv', 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(['actual', 'predicted'])
         for sample_index in range(len(test_data)):

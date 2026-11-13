@@ -143,9 +143,13 @@ def print_confusion_matrix_tables(test_actual, model_predictions):
 def export_tables_to_csv(
     summary_rows,
     per_class_rows,
-    summary_csv_path="summary_metrics.csv",
-    per_class_csv_path="per_class_metrics.csv"
+    summary_csv_path="plots/summary_metrics.csv",
+    per_class_csv_path="plots/per_class_metrics.csv"
 ):
+    if os.path.dirname(summary_csv_path):
+        os.makedirs(os.path.dirname(summary_csv_path), exist_ok=True)
+    if os.path.dirname(per_class_csv_path):
+        os.makedirs(os.path.dirname(per_class_csv_path), exist_ok=True)
     with open(summary_csv_path, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow([
@@ -429,13 +433,13 @@ def table_comparison(test_actual, model_predictions):
     print_confusion_matrix_tables(test_actual, model_predictions)
 
     export_tables_to_csv(summary_rows, per_class_rows)
-    print("Exported comparison tables to 'summary_metrics.csv' and 'per_class_metrics.csv'.")
+    print("Exported comparison tables to 'plots/summary_metrics.csv' and 'plots/per_class_metrics.csv'.")
 
 
 if __name__ == "__main__":
-    nb_actual, nb_pred = load_predictions_csv("nb_predictions.csv")
-    _, perc_pred = load_predictions_csv("perceptron_predictions.csv")
-    _, knn_pred = load_predictions_csv("knn_predictions.csv")
+    nb_actual, nb_pred = load_predictions_csv("plots/nb_predictions.csv")
+    _, perc_pred = load_predictions_csv("plots/perceptron_predictions.csv")
+    _, knn_pred = load_predictions_csv("plots/knn_predictions.csv")
 
     models = [
         ("Gaussian Naive Bayes", nb_pred),
