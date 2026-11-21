@@ -43,7 +43,7 @@
                 <dt>Perceptron &middot; Macro F1</dt>
                 <dd>
                     <strong>86.43%</strong>
-                    <span>One-vs-Rest hyperplane mislabels 25.5% of CPP clashes as Mindanao groups.</span>
+                    <span>Non-convergent OvR hyperplane mislabels 25.5% of CPP clashes as Mindanao groups.</span>
                 </dd>
             </div>
             <div>
@@ -337,8 +337,11 @@
 b[c]    += learning_rate * (target - predicted)</code>
                         </li>
                         <li>An early stopping check terminates training for class <i>c</i> if an entire epoch completes
-                            with
-                            zero weight updates.</li>
+                            with zero weight updates. However, because none of the three One-vs-Rest subproblems in this
+                            dataset is linearly separable, early stopping never triggers and all three binary
+                            perceptrons run for the full <code>max_epochs = 100</code> without converging (analyzed in
+                            <a href="#discussion">Section 6</a>).
+                        </li>
                         <li>During inference (<code>predict_one</code>), the raw linear combination score
                             <i>z<sub>c</sub></i>
                             is computed across all three class weight vectors, and the class producing the highest
@@ -453,11 +456,15 @@ b[c]    += learning_rate * (target - predicted)</code>
             <ul>
                 <li><strong>Gaussian Naive Bayes:</strong> Variance smoothing = <code>1e-9</code>.</li>
                 <li><strong>Linear Perceptron:</strong> Learning rate &eta; = <code>0.01</code>, maximum epochs =
-                    <code>100</code>, initial bias = <code>0.0</code>. Multiple learning rates were tested during
-                    sensitivity
-                    analysis; because varying the step size yielded identical converged evaluation metrics on the
-                    dataset, &eta;
-                    = <code>0.01</code> was maintained.
+                    <code>100</code>, initial bias = <code>0.0</code>. None of the three One-vs-Rest binary perceptrons
+                    converges within 100 epochs, so training terminates at the epoch cap rather than via early stopping.
+                    Multiple positive learning rates (&eta; &isin; {<code>0.0001</code>, <code>0.01</code>,
+                    <code>0.1</code>, <code>1.0</code>}) were tested during sensitivity analysis and produced identical
+                    test metrics (83.79% accuracy, 86.43% Macro F1)—not because of convergence, but because
+                    zero-initialized weights and bias (<code>0.0</code>) scale strictly linearly with &eta;
+                    (<b>w</b><sub>c</sub>(&eta;) = &eta;&middot;<b>w</b><sub>c</sub>(1)), leaving both the training sign
+                    decisions <code>sgn(z)</code> and inference rankings <code>argmax(z_c)</code> invariant to &eta;;
+                    thus &eta; = <code>0.01</code> was maintained.
                 </li>
                 <li><strong>K-Nearest Neighbors (<i>k</i> Optimization via <code>bestk.py</code>):</strong> Distance
                     power
@@ -821,50 +828,313 @@ b[c]    += learning_rate * (target - predicted)</code>
                 separation.
             </p>
 
-            <h4>Linear Perceptron &mdash; Intermediate Performer (86.43% Macro F1)</h4>
+            <h4>Linear Perceptron &mdash; Intermediate Performer (86.43% Macro F1, Non-Convergent)</h4>
             <p>
                 The One-vs-Rest Linear Perceptron substantially improved upon Naive Bayes, recovering Class 1 (Mindanao)
                 recall from 3.60% up to 91.29%. Because Mindanao lies in the southern latitudes of the Philippines, a
-                linear
-                hyperplane using latitude, longitude, and conflict characteristics can separate most northern and
-                central
-                CPP clashes from southern Mindanao incidents. However, because the CPP/NPA also operates inside parts of
-                Mindanao, their geographical coordinates overlap with Class 1. A rigid linear boundary cannot carve out
-                local pockets within Mindanao, causing the Perceptron to misclassify 109 out of 428 actual Class 0 (CPP)
-                instances (25.5%) as Class 1 (Mindanao).
+                linear hyperplane using latitude, longitude, and conflict characteristics can separate most northern and
+                central CPP clashes from southern Mindanao incidents. However, because the CPP/NPA also operates inside
+                parts of Mindanao, their geographical coordinates overlap with Class 1. A rigid linear boundary cannot
+                carve out local pockets within Mindanao, causing the Perceptron to misclassify 109 out of 428 actual
+                Class 0 (CPP) instances (25.5%) as Class 1 (Mindanao).
             </p>
+            <p>
+                Crucially, <strong>the Linear Perceptron does not converge</strong> on any of the three One-vs-Rest
+                subproblems. Although <code>perceptron.py</code> includes an early-stopping check
+                (<code>if not weight_updated: break</code>), none of the three binary classifiers ever reaches a
+                zero-update epoch: all three run to <code>max_epochs = 100</code> while still performing
+                <strong>843</strong> (Class 0), <strong>723</strong> (Class 1), and <strong>49</strong> (Class 2)
+                weight updates in Epoch 100. Because the weight vectors keep oscillating instead of
+                settling, test performance swings sharply depending on the arbitrary stopping epoch—for instance, Macro
+                F1 drops from <strong>87.23%</strong> at Epoch 98 to <strong>73.50%</strong> at Epoch 99, rebounds to
+                <strong>86.43%</strong> at Epoch 100, and rises to <strong>87.99%</strong> at Epoch 101.
+            </p>
+            <p>
+                Five mathematical and empirical factors explain why the Linear Perceptron fails to converge:
+            </p>
+            <ol>
+                <li><em>Perceptron Convergence Theorem &amp; Proven Linear Inseparability:</em> By the Perceptron
+                    Convergence Theorem, the classical update rule is guaranteed to terminate in finite steps
+                    <strong>only if</strong> the training classes are linearly separable. Exact linear programming
+                    feasibility checks confirm that <strong>none of the three OvR subproblems</strong> (Class 0 vs.
+                    Rest, Class 1 vs. Rest, or Class 2 vs. Rest) admits a separating hyperplane in the 8-feature space;
+                    consequently, the weights oscillate indefinitely until hitting <code>max_epochs</code>.
+                </li>
+                <li><em>Substantial Geographical &amp; Operational Overlap Inside Mindanao:</em> Rather than occupying
+                    disjoint territories, <strong>42.5% of Class 0 (CPP) training events (727 / 1,712)</strong> occur at
+                    Mindanao latitudes (<code>latitude &le; 9.8&deg;N</code>, with 654 at <code>&le; 9.0&deg;N</code>)
+                    and share the exact same state-based violence profile (<code>type_of_violence = 1</code>) as
+                    Mindanao groups. Likewise, 16 Class 1 training events (1.2%) occur north of <code>9.8&deg;N</code>.
+                    Every single one of the 109 test CPP events misclassified as Mindanao (100%) lies between
+                    <code>5.87&deg;N</code> and <code>8.80&deg;N</code> (mean <code>7.39&deg;N</code>).
+                </li>
+                <li><em>Exact Feature-Vector Collisions with Conflicting Labels:</em> Within the training split alone,
+                    <strong>12 distinct 8-feature vectors (spanning 31 rows)</strong> are bit-for-bit identical across
+                    all 8 inputs—same coordinates, casualty counts, violence type, and duration—yet belong to both Class
+                    0 (CPP) and Class 1 (Mindanao) (for example, <code>[125.0, 8.0, 0, 1, 0, 1, 1, 0]</code>). No
+                    deterministic classifier, let alone a linear hyperplane, can achieve zero training error when
+                    identical inputs carry opposite target labels.
+                </li>
+                <li><em>State-Based Exceptions Inside Class 2 (Others):</em> Even though 98.3% of Class 2 training
+                    records represent one-sided violence against civilians (<code>type_of_violence = 3</code>),
+                    <strong>8 training rows</strong> (11 in the full dataset) from
+                    <em>Military faction (forces of Honasan, Abenina &amp; Zumel)</em> and <em>Government of Kuwait</em>
+                    are recorded as state-based battles (<code>type_of_violence = 1</code>) in Luzon and Mindanao
+                    coordinates. Because they sit directly inside the Class 0 and Class 1 feature region, even Class 2
+                    vs. Rest is linearly inseparable and never reaches zero updates.
+                </li>
+                <li><em>Unscaled Features &amp; Unbuffered Step Updates:</em> Raw input scales span two orders of
+                    magnitude—<code>type_of_violence</code> spans <code>2</code> and coordinates span
+                    <code>9.4–13.8&deg;</code>, whereas <code>best</code> reaches <code>791</code>,
+                    <code>deaths_a</code> reaches <code>461</code>, and <code>duration_days</code> reaches
+                    <code>365</code>. Under the constant-step update rule
+                    <code>w += &eta;(y - &ycirc;)x</code>, each misclassified high-casualty or long-duration outlier
+                    imparts a large perturbation that tilts the hyperplane away from ordinary events, and without a
+                    decaying learning rate, Pocket weight retention, or weight averaging, the boundary oscillates on
+                    every pass.
+                </li>
+            </ol>
+
+            <figure class="data-table">
+                <h3>Table 4: One-vs-Rest Linear Perceptron Non-Convergence Diagnostics (<code>n = 3,486</code> train)
+                </h3>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Binary OvR Classifier</th>
+                                <th class="num">Epoch 1 Updates</th>
+                                <th class="num">Epoch 100 Updates</th>
+                                <th class="num">Epoch 1,000 Updates</th>
+                                <th class="num">Train Errors at Ep. 100</th>
+                                <th>Linearly Separable?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="row-fail">
+                                <td><strong>Class 0 (CPP vs. Rest)</strong></td>
+                                <td class="num">1,413</td>
+                                <td class="num anomaly">843</td>
+                                <td class="num">693</td>
+                                <td class="num">766 (21.97%)</td>
+                                <td class="anomaly">No (infeasible)</td>
+                            </tr>
+                            <tr class="row-fail">
+                                <td><strong>Class 1 (Mindanao vs. Rest)</strong></td>
+                                <td class="num">1,309</td>
+                                <td class="num anomaly">723</td>
+                                <td class="num">691</td>
+                                <td class="num">507 (14.54%)</td>
+                                <td class="anomaly">No (infeasible)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Class 2 (Others vs. Rest)</strong></td>
+                                <td class="num">809</td>
+                                <td class="num anomaly">49</td>
+                                <td class="num">34</td>
+                                <td class="num">23 (0.66%)</td>
+                                <td class="anomaly">No (infeasible)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <figcaption>
+                    <strong>Persistent non-convergence across all three OvR perceptrons.</strong> None of the binary
+                    classifiers reaches zero updates at <code>max_epochs = 100</code> or even 1,000 epochs; linear
+                    programming feasibility tests confirm all three subproblems are linearly inseparable in the
+                    8-feature space.
+                </figcaption>
+            </figure>
 
             <blockquote>
-                Because CPP/NPA units also operate inside parts of Mindanao, a rigid linear hyperplane cannot carve out
-                local territorial pockets—forcing the Perceptron to misclassify 109 of 428 actual CPP clashes (25.5%) as
-                Mindanao groups.
+                None of the three One-vs-Rest perceptrons ever converges: overlapping CPP pockets in Mindanao, 12
+                identical feature vectors with conflicting labels, and 8 state-based Class 2 records make every split
+                linearly inseparable—causing continuous weight oscillation and misclassifying 109 of 428 CPP clashes
+                (25.5%) as Mindanao groups.
             </blockquote>
 
             <h4>Gaussian Naive Bayes &mdash; Baseline Performer (58.07% Macro F1)</h4>
             <p>
                 Gaussian Naive Bayes suffered a severe recall collapse on Class 1 (Mindanao), identifying only 12 of 333
-                instances (3.60% recall, 6.88% F1) while misclassifying 312 Mindanao instances (93.7%) as Class 0 (CPP).
-                Two
-                structural properties of the data explain this failure:
+                test instances (3.60% recall, 6.88% F1) while misclassifying 312 Mindanao instances (93.7%) as Class 0
+                (CPP) and 9 (2.7%) as Class 2 (Others). Inspecting the fitted class parameters reveals one dominant
+                mathematical mechanism reinforced by two structural dataset properties:
             </p>
             <ol>
-                <li><em>Violation of Conditional Independence:</em> The lethality features (<code>deaths_a</code>,
-                    <code>deaths_b</code>, <code>deaths_civilians</code>, and total fatalities <code>best</code>) are
-                    directly correlated (<code>best &approx; deaths_a + deaths_b + deaths_civilians</code>). Naive Bayes
-                    multiplies their individual likelihoods together, effectively over-weighting casualty counts
-                    relative to geographical coordinates.
+                <li><em>Primary Cause &mdash; Zero-Variance Density Explosion on <code>type_of_violence</code>:</em>
+                    Although <code>type_of_violence</code> is a discrete categorical code (<code>1</code> = state-based,
+                    <code>2</code> = non-state, <code>3</code> = one-sided), Gaussian Naive Bayes fits a continuous
+                    normal density to it. In the training split, <strong>100% of Class 0 (CPP) events (1,712 /
+                        1,712)</strong> have <code>type_of_violence = 1</code>, producing a sample variance of exactly
+                    <code>0.0</code>—which becomes <code>&sigma;&sup2;<sub>0</sub> = 10<sup>&minus;9</sup></code> after
+                    adding <code>smoothing = 1e-9</code>. By contrast, Class 1 (Mindanao) contains 1,274 state-based
+                    events (98.15%) and 24 non-state inter-group events (<code>type_of_violence = 2</code>, 1.85%),
+                    yielding <code>&mu;<sub>1</sub> = 1.0185</code> and a far larger variance
+                    <code>&sigma;&sup2;<sub>1</sub> = 0.01815</code>. On every state-based test clash
+                    (<code>type_of_violence = 1</code>, which covers <strong>325 of 333 = 97.6%</strong> of Mindanao
+                    test events), CPP's near-zero variance creates a Dirac-delta-like peak density:
+                    <code class="formula">ll_CPP(x=1)      = -0.5 * ln(2*pi * 1e-9)     - 0                       = +9.4427
+ll_Mindanao(x=1) = -0.5 * ln(2*pi * 0.018148) - (1 - 1.0185)^2 / 0.0363 = +1.0762
+Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.3665  (~4,300x ratio)</code>
+                    This single feature grants Class 0 a constant <strong>+8.37 log-likelihood advantage</strong>
+                    (roughly a 4,300&times; likelihood ratio) on almost every Mindanao incident. Even
+                    <code>latitude</code>—the strongest spatial discriminator (<code>&mu;<sub>1</sub> = 6.89&deg;</code>
+                    vs. <code>&mu;<sub>0</sub> = 11.14&deg;</code>)—only favors Mindanao by a median of
+                    <strong>2.01 log-likelihood points</strong>, so all geographic evidence combined is completely
+                    swamped. Conversely, on the remaining 8 Mindanao test events with <code>type_of_violence = 2</code>,
+                    CPP's <code>1e-9</code> variance imposes a massive quadratic penalty
+                    (<code>&minus;5&times;10<sup>8</sup></code>),
+                    eliminating CPP, while Mindanao's narrow variance (<code>0.01815</code>) also penalizes
+                    <code>x = 2</code> far harder than Class 2's wider variance (<code>0.0661</code>), diverting
+                    <strong>7 of those 8</strong> events into Class 2 (Others). Only 12 Mindanao test cases survived:
+                    11 state-based incidents with unusually high civilian casualties (<code>deaths_civilians</code> of
+                    2–10, heavily penalized by CPP's narrow civilian-death variance) and 1 non-state incident.
+                    Ablation confirms this mechanism directly: <strong>removing <code>type_of_violence</code> alone
+                        lifts Mindanao recall from 3.60% to 87.99%</strong>, and raising variance smoothing from
+                    <code>1e-9</code> to <code>1e-3</code> lifts it to <strong>87.39%</strong>.
                 </li>
-                <li><em>Non-Gaussian Feature Distributions:</em> Casualty counts and conflict durations are
-                    zero-inflated, heavily right-skewed discrete integers rather than symmetric bell curves. Because
-                    Class 0 (CPP) has the largest prior probability and spans the entire country (giving it a wide
-                    variance and broad Gaussian envelope), its likelihood dominates Class 1 across most low-casualty
-                    clashes.</li>
+                <li><em>Reinforcing Cause &mdash; Zero-Inflated Non-Gaussian Counts &amp; Class Prior Bias:</em>
+                    Casualty counts and conflict durations are discrete, zero-inflated, heavily right-skewed integers
+                    rather than symmetric bell curves (<code>deaths_civilians = 0</code> in 93.4% of CPP and 92.1% of
+                    Mindanao training events; <code>duration_days = 0</code> in 89.4% of CPP and 77.1% of Mindanao
+                    events). In a Gaussian PDF, a <strong>narrower</strong> variance concentrates higher density near
+                    the mean: because Class 0 has a tighter <code>deaths_civilians</code> variance (<code>0.2755</code>
+                    vs. Mindanao's <code>1.1688</code>), every zero-civilian-death clash adds another
+                    <strong>+0.7223</strong> log-likelihood bonus to CPP (favoring CPP on 307 / 333 = 92.2% of Mindanao
+                    test events). Combined with CPP's larger training prior (49.11% vs. 37.23%, adding
+                    <strong>+0.2768</strong>), typical Mindanao clashes end with a median net score of
+                    <strong>+5.24 log-likelihood points in favor of CPP</strong>.
+                </li>
+                <li><em>Reinforcing Cause &mdash; Violation of Conditional Independence (Multicollinearity):</em> The
+                    lethality features (<code>deaths_a</code>, <code>deaths_b</code>, <code>deaths_civilians</code>, and
+                    total fatalities <code>best</code>) are directly correlated
+                    (<code>best &approx; deaths_a + deaths_b + deaths_civilians</code>). Naive Bayes multiplies their
+                    individual likelihoods together as if independent, double-counting casualty counts relative to
+                    geographical coordinates.
+                </li>
             </ol>
 
+            <figure class="data-table">
+                <h3>Table 5: Gaussian Naive Bayes Parameters &amp; Median Log-Likelihood Gap on Mindanao Test Events
+                    (<code>n = 333</code>)</h3>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature / Term</th>
+                                <th class="num">CPP Mean (&mu;<sub>0</sub>)</th>
+                                <th class="num">CPP Var (&sigma;&sup2;<sub>0</sub>)</th>
+                                <th class="num">Mindanao Mean (&mu;<sub>1</sub>)</th>
+                                <th class="num">Mindanao Var (&sigma;&sup2;<sub>1</sub>)</th>
+                                <th class="num">Median &Delta;LL (CPP &minus; Min)</th>
+                                <th class="num">Favors CPP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="row-fail">
+                                <td><code>type_of_violence</code></td>
+                                <td class="num">1.0000</td>
+                                <td class="num anomaly">1.00e-9</td>
+                                <td class="num">1.0185</td>
+                                <td class="num">0.01815</td>
+                                <td class="num anomaly">+8.3665</td>
+                                <td class="num anomaly">97.6%</td>
+                            </tr>
+                            <tr>
+                                <td><code>deaths_civilians</code></td>
+                                <td class="num">0.1116</td>
+                                <td class="num">0.2755</td>
+                                <td class="num">0.2288</td>
+                                <td class="num">1.1688</td>
+                                <td class="num">+0.7223</td>
+                                <td class="num">92.2%</td>
+                            </tr>
+                            <tr>
+                                <td>Class Log-Prior <code>ln P(c)</code></td>
+                                <td class="num">49.11%</td>
+                                <td class="num">&mdash;</td>
+                                <td class="num">37.23%</td>
+                                <td class="num">&mdash;</td>
+                                <td class="num">+0.2768</td>
+                                <td class="num">100.0%</td>
+                            </tr>
+                            <tr>
+                                <td><code>deaths_b</code></td>
+                                <td class="num">2.3873</td>
+                                <td class="num">104.01</td>
+                                <td class="num">5.1333</td>
+                                <td class="num">130.27</td>
+                                <td class="num">+0.1495</td>
+                                <td class="num">82.9%</td>
+                            </tr>
+                            <tr>
+                                <td><code>duration_days</code></td>
+                                <td class="num">2.6250</td>
+                                <td class="num">650.55</td>
+                                <td class="num">3.7812</td>
+                                <td class="num">354.91</td>
+                                <td class="num">&minus;0.2881</td>
+                                <td class="num">4.5%</td>
+                            </tr>
+                            <tr>
+                                <td><code>longitude</code></td>
+                                <td class="num">123.74</td>
+                                <td class="num">3.3239</td>
+                                <td class="num">123.03</td>
+                                <td class="num">2.3892</td>
+                                <td class="num">&minus;0.3241</td>
+                                <td class="num">48.0%</td>
+                            </tr>
+                            <tr>
+                                <td><code>best</code></td>
+                                <td class="num">4.2944</td>
+                                <td class="num">431.62</td>
+                                <td class="num">6.7750</td>
+                                <td class="num">158.78</td>
+                                <td class="num">&minus;0.4343</td>
+                                <td class="num">4.2%</td>
+                            </tr>
+                            <tr>
+                                <td><code>deaths_a</code></td>
+                                <td class="num">1.6624</td>
+                                <td class="num">136.07</td>
+                                <td class="num">1.1757</td>
+                                <td class="num">7.9753</td>
+                                <td class="num">&minus;1.3419</td>
+                                <td class="num">3.6%</td>
+                            </tr>
+                            <tr>
+                                <td><code>latitude</code></td>
+                                <td class="num">11.14</td>
+                                <td class="num">11.229</td>
+                                <td class="num">6.89</td>
+                                <td class="num">0.8875</td>
+                                <td class="num">&minus;2.0092</td>
+                                <td class="num">0.9%</td>
+                            </tr>
+                            <tr class="group-start row-fail">
+                                <td><strong>Net Log-Posterior Gap</strong></td>
+                                <td colspan="4"><em>Sum across prior + all 8 features (median across 333 Mindanao test
+                                        events)</em></td>
+                                <td class="num anomaly"><strong>+5.2431</strong></td>
+                                <td class="num anomaly"><strong>93.7% &rarr; CPP</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <figcaption>
+                    <strong>Why Gaussian Naive Bayes funnels Mindanao into CPP.</strong> Positive &Delta;LL values favor
+                    Class 0 (CPP); negative values favor Class 1 (Mindanao). The zero-variance spike on
+                    <code>type_of_violence = 1</code> (+8.37) alone outweighs <code>latitude</code> (&minus;2.01) and
+                    every other Mindanao-favoring feature combined.
+                </figcaption>
+            </figure>
+
             <blockquote class="anomaly-quote">
-                Gaussian Naive Bayes suffered a severe recall collapse on Class 1 (Mindanao), identifying just 12 of 333
-                incidents (3.60%) while funneling 93.7% into Class 0 (CPP) due to correlated casualty counts and heavily
-                skewed non-Gaussian distributions.
+                Because 100% of CPP training events share <code>type_of_violence = 1</code> (variance collapsed to
+                <code>1e-9</code>), Gaussian Naive Bayes awards CPP an artificial +8.37 log-likelihood spike
+                (~4,300&times; likelihood ratio)—overwhelming Mindanao's latitude signal and funneling 93.7% of Mindanao
+                incidents into CPP.
             </blockquote>
 
             <h4>High Separability of Class 2 (Others)</h4>
@@ -878,55 +1148,51 @@ b[c]    += learning_rate * (target - predicted)</code>
 
             <h3>6.2 Limitations</h3>
             <ul>
+                <li><strong>Gaussian Modeling of Discrete Categorical Features &amp; Fixed Tiny Smoothing:</strong>
+                    Treating discrete categorical code <code>type_of_violence</code> as a continuous normal variable
+                    with a tiny fixed variance floor (<code>smoothing = 1e-9</code>) caused CPP's zero-variance feature
+                    to produce an extreme density spike (+8.37 log-likelihood advantage), collapsing Mindanao recall to
+                    3.60%.
+                </li>
                 <li><strong>Unscaled Numerical Features:</strong> Features were passed in their raw units (latitude and
                     longitude vary within a narrow range of a few degrees, whereas casualty counts and
                     <code>duration_days</code> can span tens or hundreds). In Euclidean distance (KNN) and linear weight
-                    updates
-                    (Perceptron), extreme casualty or duration values can dominate spatial coordinate differences.
+                    updates (Perceptron), extreme casualty or duration values can dominate spatial coordinate
+                    differences.
                 </li>
-                <li><strong>Multicollinearity in Lethality Features:</strong> Including both the component casualty
-                    counts
-                    (<code>deaths_a</code>, <code>deaths_b</code>, <code>deaths_civilians</code>) and their aggregate
-                    (<code>best</code>) introduces redundant information that biases Naive Bayes log-likelihoods.</li>
-                <li><strong>Non-Convergence on Non-Linearly Separable Classes:</strong> Because CPP and Mindanao group
-                    territories overlap geographically in southern Philippines, the classes are not linearly separable.
-                    Consequently, the standard Perceptron update rule never reaches zero training error and stops at
-                    <code>max_epochs = 100</code>, making its final hyperplane sensitive to the order of training
-                    samples.
+                <li><strong>Non-Convergence on Linearly Inseparable Classes:</strong> Linear programming checks confirm
+                    that none of the three OvR splits is linearly separable—due to CPP operations inside Mindanao, 12
+                    exact duplicate training feature vectors with conflicting labels, and 8 state-based Class 2 records.
+                    Consequently, the standard Perceptron never converges, exhausts <code>max_epochs = 100</code> while
+                    still updating weights every epoch, and exhibits epoch-to-epoch test oscillation sensitive to sample
+                    ordering and the arbitrary stopping epoch.
                 </li>
-                <li><strong>Coarse Grouping of Mindanao Actors:</strong> Aggregating all non-CPP insurgent groups (MILF,
-                    MNLF,
-                    BIFF, ASG, Maute) into a single Class 1 prevents the models from distinguishing between different
-                    Mindanao
-                    factions that have distinct tactical and casualty profiles.</li>
             </ul>
 
             <h3>6.3 Possible Improvements</h3>
             <ul>
-                <li><strong>Feature Scaling and Transformation:</strong> Apply Z-score standardization or Min-Max
-                    normalization
-                    so geographical coordinates and casualty/duration features contribute equally to KNN Euclidean
-                    distances and
-                    Perceptron updates. Applying a <code>log(1 + x)</code> transformation to skewed casualty and
-                    duration
-                    features would also make them better approximate a Gaussian distribution for Naive Bayes.</li>
-                <li><strong>Feature Selection / De-correlation:</strong> Remove redundant features such as
-                    <code>best</code> (or
-                    replace raw death counts with casualty ratios, such as civilian-to-combatant death share) to reduce
-                    feature
-                    correlation.
+                <li><strong>Hybrid Naive Bayes &amp; Variance-Scaled Smoothing:</strong> Model discrete categorical
+                    variables such as <code>type_of_violence</code> with a Categorical/Multinomial Naive Bayes component
+                    (with Laplace smoothing) rather than a Gaussian PDF—or scale Gaussian variance smoothing relative to
+                    the largest feature variance (as in scikit-learn's <code>var_smoothing * max(var)</code>) instead of
+                    a fixed <code>1e-9</code> floor—to prevent zero-variance density explosions.
                 </li>
-                <li><strong>Distance-Weighted KNN and Non-Linear Classifiers:</strong> Weight neighbor votes by inverse
-                    distance
-                    (<code>1 / d</code>) in KNN, or explore tree-based and kernel-based classifiers (such as Decision
-                    Trees,
-                    Random Forests, or RBF-kernel SVMs) that handle multi-scale tabular features and regional boundaries
-                    effectively.</li>
-                <li><strong>Fine-Grained Multi-Class Classification:</strong> Expand the target labels to classify
-                    individual
-                    Mindanao organizations (e.g., MILF vs. ASG vs. BIFF) and incorporate temporal features (such as the
-                    year of
-                    conflict) to capture shifting peace agreements and group activity over time.</li>
+                <li><strong>Feature Scaling and Transformation:</strong> Apply Z-score standardization or Min-Max
+                    normalization so geographical coordinates and casualty/duration features contribute equally to KNN
+                    Euclidean distances and Perceptron updates. Applying a <code>log(1 + x)</code> transformation to
+                    skewed casualty and duration features would also make them better approximate a Gaussian
+                    distribution for Naive Bayes.</li>
+                <li><strong>Convergent Linear Classifiers &amp; Pocket/Averaged Perceptron:</strong> Replace the
+                    Perceptron with a <strong>Pocket Perceptron</strong> (retaining the lowest-error weight vector), an
+                    <strong>Averaged Perceptron</strong>, or smooth convex linear models such as <strong>Multinomial
+                        Logistic Regression</strong> or a soft-margin <strong>Linear SVM</strong>, which stabilize
+                    gracefully
+                    on linearly inseparable data.
+                </li>
+                <li><strong>Feature Selection / De-correlation:</strong> Remove redundant features such as
+                    <code>best</code> (or replace raw death counts with casualty ratios, such as civilian-to-combatant
+                    death share) to reduce feature correlation.
+                </li>
             </ul>
         </section>
 
@@ -935,25 +1201,22 @@ b[c]    += learning_rate * (target - predicted)</code>
             <h2>7. Conclusion</h2>
             <p>
                 In this study, we evaluated three classical machine learning algorithms implemented from
-                scratch—Gaussian Naive
-                Bayes, One-vs-Rest Linear Perceptron, and K-Nearest Neighbors (<i>k</i> = 3)—on 4,368 historical
-                Philippine
-                conflict incidents from the UCDP dataset. Our experimental results demonstrate that <strong>K-Nearest
-                    Neighbors
-                    (<i>k</i> = 3)</strong> is by far the most effective approach, achieving a <strong>92.63% Standard
-                    Accuracy</strong>, <strong>93.07% Balanced Accuracy</strong>, and <strong>93.22% Macro
-                    F1-Score</strong>. By
-                leveraging local spatial and tactical similarity, KNN accurately separates nationwide CPP/NPA guerrilla
-                clashes
-                from localized Mindanao insurgent conflicts. In contrast, the Linear Perceptron achieved moderate
-                success
-                (86.43% Macro F1) due to north-south geographical trends but struggled where CPP and Mindanao
-                territories
-                overlapped, while Gaussian Naive Bayes (58.07% Macro F1) failed on Class 1 due to correlated casualty
-                features
-                and non-Gaussian distributions. Overall, non-parametric neighborhood learning proves highly effective
-                for
-                modeling the territorial nature of insurgent conflicts in the Philippines.
+                scratch—Gaussian Naive Bayes, One-vs-Rest Linear Perceptron, and K-Nearest Neighbors (<i>k</i> = 3)—on
+                4,368 historical Philippine conflict incidents from the UCDP dataset. Our experimental results
+                demonstrate that <strong>K-Nearest Neighbors (<i>k</i> = 3)</strong> is by far the most effective
+                approach, achieving a <strong>92.63% Standard Accuracy</strong>, <strong>93.07% Balanced
+                    Accuracy</strong>, and <strong>93.22% Macro F1-Score</strong>. By leveraging local spatial and
+                tactical
+                similarity, KNN accurately separates nationwide CPP/NPA guerrilla clashes from localized Mindanao
+                insurgent conflicts. In contrast, the Linear Perceptron achieved moderate performance (86.43% Macro F1)
+                by exploiting north-south geographical trends, yet failed to converge on any of the three One-vs-Rest
+                subproblems because overlapping Mindanao territories, duplicate conflicting feature vectors, and
+                state-based Class 2 exceptions make the dataset linearly inseparable. Meanwhile, Gaussian Naive Bayes
+                (58.07% Macro F1) collapsed to 3.60% recall on Mindanao primarily because zero-variance smoothing
+                (<code>1e-9</code>) on discrete <code>type_of_violence = 1</code> generated an artificial density spike
+                favoring CPP—compounded by zero-inflated non-Gaussian counts, prior imbalance, and correlated casualty
+                features. Overall, non-parametric neighborhood learning proves highly effective for modeling the
+                territorial nature of insurgent conflicts in the Philippines.
             </p>
         </section>
 
