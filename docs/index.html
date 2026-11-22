@@ -14,9 +14,15 @@
 
 <body>
 
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
     <header id="top">
         <p class="kicker">CMSC 170 EF-6L &middot; Group: Gem in AI</p>
         <h1>Conflict Classification in the Philippines: Predicting Insurgent Groups Using Machine Learning</h1>
+        <p class="deck">
+            A from-scratch evaluation of Gaussian Naive Bayes, One-vs-Rest Linear Perceptron, and K-Nearest Neighbors
+            across 4,368 historical Philippine armed conflict events from UCDP.
+        </p>
 
         <div class="byline">
             <div>
@@ -25,9 +31,9 @@
                 <strong>Earl Ian Garduce</strong>
             </div>
             <div class="byline-links">
-                <a href="https://github.com/Natex15/AI-Evaluation">GitHub Repository</a>
-                <a href="https://canva.link/dsuo67ni767koys">Slides: Milestone 1&amp;2</a>
-                <a href="https://canva.link/zh4b2qyhki36e08">Slides: Milestone 3</a>
+                <a href="https://github.com/Natex15/AI-Evaluation" target="_blank" rel="noopener">GitHub Repository</a>
+                <a href="https://canva.link/dsuo67ni767koys" target="_blank" rel="noopener">Slides: Milestone 1&amp;2</a>
+                <a href="https://canva.link/zh4b2qyhki36e08" target="_blank" rel="noopener">Slides: Milestone 3</a>
             </div>
         </div>
 
@@ -77,7 +83,7 @@
         </ol>
     </nav>
 
-    <main>
+    <main id="main-content">
 
         <section id="problem">
             <p class="kicker">Section 01 &middot; Context</p>
@@ -135,7 +141,8 @@
                 <li><strong>Source:</strong> Uppsala Conflict Data Program (UCDP), hosted via the Humanitarian Data
                     Exchange
                     (HDX): <a
-                        href="https://data.humdata.org/dataset/ucdp-data-for-philippines/resource/903916a3-b456-4b9f-a277-529013d7139a">UCDP
+                        href="https://data.humdata.org/dataset/ucdp-data-for-philippines/resource/903916a3-b456-4b9f-a277-529013d7139a"
+                        target="_blank" rel="noopener">UCDP
                         Philippines Dataset on HDX</a>.</li>
                 <li><strong>Dataset Size:</strong> 4,368 total rows and 9 processed columns (8 numerical input features
                     and 1
@@ -151,15 +158,15 @@
 
             <figure class="data-table">
                 <h3>Input Features (8) and Target Variable (1)</h3>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th class="num">Processed Index</th>
-                                <th>Feature / Variable Name</th>
-                                <th class="num">Raw CSV Column Index</th>
-                                <th>Data Type</th>
-                                <th>Description</th>
+                                <th scope="col" class="num">Processed Index</th>
+                                <th scope="col">Feature / Variable Name</th>
+                                <th scope="col" class="num">Raw CSV Column Index</th>
+                                <th scope="col">Data Type</th>
+                                <th scope="col">Description</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -510,22 +517,22 @@ b[c]    += learning_rate * (target - predicted)</code>
 
             <figure class="data-table">
                 <h3>Table 1: Overall Model Evaluation Metrics</h3>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th>Model</th>
-                                <th class="num">Correct / Total</th>
-                                <th class="num">Standard Accuracy (%)</th>
-                                <th class="num">Balanced Accuracy (%)</th>
-                                <th class="num">Macro Precision (%)</th>
-                                <th class="num">Macro Recall (%)</th>
-                                <th class="num">Macro F1 (%)</th>
+                                <th scope="col">Model</th>
+                                <th scope="col" class="num">Correct / Total</th>
+                                <th scope="col" class="num">Standard Accuracy (%)</th>
+                                <th scope="col" class="num">Balanced Accuracy (%)</th>
+                                <th scope="col" class="num">Macro Precision (%)</th>
+                                <th scope="col" class="num">Macro Recall (%)</th>
+                                <th scope="col" class="num">Macro F1 (%)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="row-fail">
-                                <td>Gaussian Naive Bayes</td>
+                                <th scope="row">Gaussian Naive Bayes</th>
                                 <td class="num">553 / 882</td>
                                 <td class="num">62.70%</td>
                                 <td class="num">66.65%</td>
@@ -534,7 +541,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num anomaly">58.07%</td>
                             </tr>
                             <tr>
-                                <td>Linear Perceptron</td>
+                                <th scope="row">Linear Perceptron</th>
                                 <td class="num">739 / 882</td>
                                 <td class="num">83.79%</td>
                                 <td class="num">87.63%</td>
@@ -543,7 +550,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">86.43%</td>
                             </tr>
                             <tr class="row-win">
-                                <td><strong>K-Nearest Neighbors (k=3)</strong></td>
+                                <th scope="row"><strong>K-Nearest Neighbors (k=3)</strong></th>
                                 <td class="num"><strong>817 / 882</strong></td>
                                 <td class="num"><strong>92.63%</strong></td>
                                 <td class="num"><strong>93.07%</strong></td>
@@ -584,21 +591,21 @@ b[c]    += learning_rate * (target - predicted)</code>
 
             <details>
                 <summary>Table 2: Per-Class Performance Breakdown &mdash; View raw data (9 rows)</summary>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th>Model</th>
-                                <th>Class Label</th>
-                                <th class="num">Support</th>
-                                <th class="num">Precision (%)</th>
-                                <th class="num">Recall / Class Acc (%)</th>
-                                <th class="num">Class F1 (%)</th>
+                                <th scope="col">Model</th>
+                                <th scope="col">Class Label</th>
+                                <th scope="col" class="num">Support</th>
+                                <th scope="col" class="num">Precision (%)</th>
+                                <th scope="col" class="num">Recall / Class Acc (%)</th>
+                                <th scope="col" class="num">Class F1 (%)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Gaussian Naive Bayes</td>
+                                <th scope="row">Gaussian Naive Bayes</th>
                                 <td>0 (CPP)</td>
                                 <td class="num">428</td>
                                 <td class="num">57.32%</td>
@@ -606,7 +613,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">72.56%</td>
                             </tr>
                             <tr class="row-fail">
-                                <td>Gaussian Naive Bayes</td>
+                                <th scope="row">Gaussian Naive Bayes</th>
                                 <td>1 (Mindanao)</td>
                                 <td class="num">333</td>
                                 <td class="num">75.00%</td>
@@ -614,7 +621,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num anomaly">6.88%</td>
                             </tr>
                             <tr>
-                                <td>Gaussian Naive Bayes</td>
+                                <th scope="row">Gaussian Naive Bayes</th>
                                 <td>2 (Others)</td>
                                 <td class="num">121</td>
                                 <td class="num">92.19%</td>
@@ -622,7 +629,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">94.78%</td>
                             </tr>
                             <tr class="group-start">
-                                <td>Linear Perceptron</td>
+                                <th scope="row">Linear Perceptron</th>
                                 <td>0 (CPP)</td>
                                 <td class="num">428</td>
                                 <td class="num">92.42%</td>
@@ -630,7 +637,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">82.23%</td>
                             </tr>
                             <tr>
-                                <td>Linear Perceptron</td>
+                                <th scope="row">Linear Perceptron</th>
                                 <td>1 (Mindanao)</td>
                                 <td class="num">333</td>
                                 <td class="num">73.61%</td>
@@ -638,7 +645,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">81.50%</td>
                             </tr>
                             <tr>
-                                <td>Linear Perceptron</td>
+                                <th scope="row">Linear Perceptron</th>
                                 <td>2 (Others)</td>
                                 <td class="num">121</td>
                                 <td class="num">93.65%</td>
@@ -646,7 +653,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">95.55%</td>
                             </tr>
                             <tr class="group-start row-win">
-                                <td>K-Nearest Neighbors (k=3)</td>
+                                <th scope="row">K-Nearest Neighbors (k=3)</th>
                                 <td>0 (CPP)</td>
                                 <td class="num">428</td>
                                 <td class="num">93.78%</td>
@@ -654,7 +661,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">92.67%</td>
                             </tr>
                             <tr class="row-win">
-                                <td>K-Nearest Neighbors (k=3)</td>
+                                <th scope="row">K-Nearest Neighbors (k=3)</th>
                                 <td>1 (Mindanao)</td>
                                 <td class="num">333</td>
                                 <td class="num">89.88%</td>
@@ -662,7 +669,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="num">91.61%</td>
                             </tr>
                             <tr class="row-win">
-                                <td>K-Nearest Neighbors (k=3)</td>
+                                <th scope="row">K-Nearest Neighbors (k=3)</th>
                                 <td>2 (Others)</td>
                                 <td class="num">121</td>
                                 <td class="num">96.61%</td>
@@ -690,34 +697,34 @@ b[c]    += learning_rate * (target - predicted)</code>
                     data</summary>
 
                 <h4>Gaussian Naive Bayes Confusion Matrix</h4>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th>Actual \ Predicted</th>
-                                <th class="num">0 (CPP)</th>
-                                <th class="num">1 (Mindanao)</th>
-                                <th class="num">2 (Others)</th>
-                                <th class="num">Support</th>
+                                <th scope="col">Actual \ Predicted</th>
+                                <th scope="col" class="num">0 (CPP)</th>
+                                <th scope="col" class="num">1 (Mindanao)</th>
+                                <th scope="col" class="num">2 (Others)</th>
+                                <th scope="col" class="num">Support</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>0 (CPP)</strong></td>
+                                <th scope="row"><strong>0 (CPP)</strong></th>
                                 <td class="num">423 (98.8%)</td>
                                 <td class="num">4 (0.9%)</td>
                                 <td class="num">1 (0.2%)</td>
                                 <td class="num">428</td>
                             </tr>
                             <tr class="row-fail">
-                                <td><strong>1 (Mindanao)</strong></td>
+                                <th scope="row"><strong>1 (Mindanao)</strong></th>
                                 <td class="num anomaly">312 (93.7%)</td>
                                 <td class="num anomaly">12 (3.6%)</td>
                                 <td class="num">9 (2.7%)</td>
                                 <td class="num">333</td>
                             </tr>
                             <tr>
-                                <td><strong>2 (Others)</strong></td>
+                                <th scope="row"><strong>2 (Others)</strong></th>
                                 <td class="num">3 (2.5%)</td>
                                 <td class="num">0 (0.0%)</td>
                                 <td class="num">118 (97.5%)</td>
@@ -728,34 +735,34 @@ b[c]    += learning_rate * (target - predicted)</code>
                 </div>
 
                 <h4>Linear Perceptron Confusion Matrix</h4>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th>Actual \ Predicted</th>
-                                <th class="num">0 (CPP)</th>
-                                <th class="num">1 (Mindanao)</th>
-                                <th class="num">2 (Others)</th>
-                                <th class="num">Support</th>
+                                <th scope="col">Actual \ Predicted</th>
+                                <th scope="col" class="num">0 (CPP)</th>
+                                <th scope="col" class="num">1 (Mindanao)</th>
+                                <th scope="col" class="num">2 (Others)</th>
+                                <th scope="col" class="num">Support</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>0 (CPP)</strong></td>
+                                <th scope="row"><strong>0 (CPP)</strong></th>
                                 <td class="num">317 (74.1%)</td>
                                 <td class="num">109 (25.5%)</td>
                                 <td class="num">2 (0.5%)</td>
                                 <td class="num">428</td>
                             </tr>
                             <tr>
-                                <td><strong>1 (Mindanao)</strong></td>
+                                <th scope="row"><strong>1 (Mindanao)</strong></th>
                                 <td class="num">23 (6.9%)</td>
                                 <td class="num">304 (91.3%)</td>
                                 <td class="num">6 (1.8%)</td>
                                 <td class="num">333</td>
                             </tr>
                             <tr>
-                                <td><strong>2 (Others)</strong></td>
+                                <th scope="row"><strong>2 (Others)</strong></th>
                                 <td class="num">3 (2.5%)</td>
                                 <td class="num">0 (0.0%)</td>
                                 <td class="num">118 (97.5%)</td>
@@ -765,35 +772,35 @@ b[c]    += learning_rate * (target - predicted)</code>
                     </table>
                 </div>
 
-                <h4>K-Nearest Neighbors (k=3) Confusion Matrix</h4>
-                <div class="table-scroll">
+                <h4>K-Nearest Neighbors (<span class="math-sym">k</span>=3) Confusion Matrix</h4>
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th>Actual \ Predicted</th>
-                                <th class="num">0 (CPP)</th>
-                                <th class="num">1 (Mindanao)</th>
-                                <th class="num">2 (Others)</th>
-                                <th class="num">Support</th>
+                                <th scope="col">Actual \ Predicted</th>
+                                <th scope="col" class="num">0 (CPP)</th>
+                                <th scope="col" class="num">1 (Mindanao)</th>
+                                <th scope="col" class="num">2 (Others)</th>
+                                <th scope="col" class="num">Support</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="row-win">
-                                <td><strong>0 (CPP)</strong></td>
+                                <th scope="row"><strong>0 (CPP)</strong></th>
                                 <td class="num">392 (91.6%)</td>
                                 <td class="num">33 (7.7%)</td>
                                 <td class="num">3 (0.7%)</td>
                                 <td class="num">428</td>
                             </tr>
                             <tr class="row-win">
-                                <td><strong>1 (Mindanao)</strong></td>
+                                <th scope="row"><strong>1 (Mindanao)</strong></th>
                                 <td class="num">21 (6.3%)</td>
                                 <td class="num">311 (93.4%)</td>
                                 <td class="num">1 (0.3%)</td>
                                 <td class="num">333</td>
                             </tr>
                             <tr class="row-win">
-                                <td><strong>2 (Others)</strong></td>
+                                <th scope="row"><strong>2 (Others)</strong></th>
                                 <td class="num">5 (4.1%)</td>
                                 <td class="num">2 (1.7%)</td>
                                 <td class="num">114 (94.2%)</td>
@@ -811,7 +818,7 @@ b[c]    += learning_rate * (target - predicted)</code>
 
             <h3>6.1 Why the Methods Performed as They Did</h3>
 
-            <h4>K-Nearest Neighbors (<i>k</i> = 3) &mdash; Best Overall Performer (93.22% Macro F1)</h4>
+            <h4>K-Nearest Neighbors (<span class="math-sym"><i>k</i></span> = 3) &mdash; Best Overall Performer (93.22% Macro F1)</h4>
             <p>
                 KNN achieved the highest scores across every global metric and maintained balanced per-class F1 scores
                 above
@@ -898,21 +905,21 @@ b[c]    += learning_rate * (target - predicted)</code>
             <figure class="data-table">
                 <h3>Table 4: One-vs-Rest Linear Perceptron Non-Convergence Diagnostics (<code>n = 3,486</code> train)
                 </h3>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th>Binary OvR Classifier</th>
-                                <th class="num">Epoch 1 Updates</th>
-                                <th class="num">Epoch 100 Updates</th>
-                                <th class="num">Epoch 1,000 Updates</th>
-                                <th class="num">Train Errors at Ep. 100</th>
-                                <th>Linearly Separable?</th>
+                                <th scope="col">Binary OvR Classifier</th>
+                                <th scope="col" class="num">Epoch 1 Updates</th>
+                                <th scope="col" class="num">Epoch 100 Updates</th>
+                                <th scope="col" class="num">Epoch 1,000 Updates</th>
+                                <th scope="col" class="num">Train Errors at Ep. 100</th>
+                                <th scope="col">Linearly Separable?</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="row-fail">
-                                <td><strong>Class 0 (CPP vs. Rest)</strong></td>
+                                <th scope="row"><strong>Class 0 (CPP vs. Rest)</strong></th>
                                 <td class="num">1,413</td>
                                 <td class="num anomaly">843</td>
                                 <td class="num">693</td>
@@ -920,7 +927,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="anomaly">No (infeasible)</td>
                             </tr>
                             <tr class="row-fail">
-                                <td><strong>Class 1 (Mindanao vs. Rest)</strong></td>
+                                <th scope="row"><strong>Class 1 (Mindanao vs. Rest)</strong></th>
                                 <td class="num">1,309</td>
                                 <td class="num anomaly">723</td>
                                 <td class="num">691</td>
@@ -928,7 +935,7 @@ b[c]    += learning_rate * (target - predicted)</code>
                                 <td class="anomaly">No (infeasible)</td>
                             </tr>
                             <tr>
-                                <td><strong>Class 2 (Others vs. Rest)</strong></td>
+                                <th scope="row"><strong>Class 2 (Others vs. Rest)</strong></th>
                                 <td class="num">809</td>
                                 <td class="num anomaly">49</td>
                                 <td class="num">34</td>
@@ -973,9 +980,9 @@ b[c]    += learning_rate * (target - predicted)</code>
                     <code>&sigma;&sup2;<sub>1</sub> = 0.01815</code>. On every state-based test clash
                     (<code>type_of_violence = 1</code>, which covers <strong>325 of 333 = 97.6%</strong> of Mindanao
                     test events), CPP's near-zero variance creates a Dirac-delta-like peak density:
-                    <code class="formula">ll_CPP(x=1)      = -0.5 * ln(2*pi * 1e-9)     - 0                       = +9.4427
-ll_Mindanao(x=1) = -0.5 * ln(2*pi * 0.018148) - (1 - 1.0185)^2 / 0.0363 = +1.0762
-Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.3665  (~4,300x ratio)</code>
+                    <code class="formula">ll_CPP(x=1) = -0.5*ln(2*pi*1e-9)     - 0                   = +9.4427
+ll_Min(x=1) = -0.5*ln(2*pi*0.018148) - (1-1.0185)^2/0.0363 = +1.0762
+Delta LL    = ll_CPP(1) - ll_Min(1)                        = +8.3665 (~4,300x)</code>
                     This single feature grants Class 0 a constant <strong>+8.37 log-likelihood advantage</strong>
                     (roughly a 4,300&times; likelihood ratio) on almost every Mindanao incident. Even
                     <code>latitude</code>—the strongest spatial discriminator (<code>&mu;<sub>1</sub> = 6.89&deg;</code>
@@ -1017,22 +1024,22 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
             <figure class="data-table">
                 <h3>Table 5: Gaussian Naive Bayes Parameters &amp; Median Log-Likelihood Gap on Mindanao Test Events
                     (<code>n = 333</code>)</h3>
-                <div class="table-scroll">
+                <div class="table-scroll" tabindex="0">
                     <table>
                         <thead>
                             <tr>
-                                <th>Feature / Term</th>
-                                <th class="num">CPP Mean (&mu;<sub>0</sub>)</th>
-                                <th class="num">CPP Var (&sigma;&sup2;<sub>0</sub>)</th>
-                                <th class="num">Mindanao Mean (&mu;<sub>1</sub>)</th>
-                                <th class="num">Mindanao Var (&sigma;&sup2;<sub>1</sub>)</th>
-                                <th class="num">Median &Delta;LL (CPP &minus; Min)</th>
-                                <th class="num">Favors CPP</th>
+                                <th scope="col">Feature / Term</th>
+                                <th scope="col" class="num">CPP Mean (<span class="math-sym">&mu;<sub>0</sub></span>)</th>
+                                <th scope="col" class="num">CPP Var (<span class="math-sym">&sigma;&sup2;<sub>0</sub></span>)</th>
+                                <th scope="col" class="num">Mindanao Mean (<span class="math-sym">&mu;<sub>1</sub></span>)</th>
+                                <th scope="col" class="num">Mindanao Var (<span class="math-sym">&sigma;&sup2;<sub>1</sub></span>)</th>
+                                <th scope="col" class="num">Median <span class="math-sym">&Delta;LL</span> (CPP &minus; Min)</th>
+                                <th scope="col" class="num">Favors CPP</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="row-fail">
-                                <td><code>type_of_violence</code></td>
+                                <th scope="row"><code>type_of_violence</code></th>
                                 <td class="num">1.0000</td>
                                 <td class="num anomaly">1.00e-9</td>
                                 <td class="num">1.0185</td>
@@ -1041,7 +1048,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num anomaly">97.6%</td>
                             </tr>
                             <tr>
-                                <td><code>deaths_civilians</code></td>
+                                <th scope="row"><code>deaths_civilians</code></th>
                                 <td class="num">0.1116</td>
                                 <td class="num">0.2755</td>
                                 <td class="num">0.2288</td>
@@ -1050,7 +1057,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">92.2%</td>
                             </tr>
                             <tr>
-                                <td>Class Log-Prior <code>ln P(c)</code></td>
+                                <th scope="row">Class Log-Prior <code>ln P(c)</code></th>
                                 <td class="num">49.11%</td>
                                 <td class="num">&mdash;</td>
                                 <td class="num">37.23%</td>
@@ -1059,7 +1066,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">100.0%</td>
                             </tr>
                             <tr>
-                                <td><code>deaths_b</code></td>
+                                <th scope="row"><code>deaths_b</code></th>
                                 <td class="num">2.3873</td>
                                 <td class="num">104.01</td>
                                 <td class="num">5.1333</td>
@@ -1068,7 +1075,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">82.9%</td>
                             </tr>
                             <tr>
-                                <td><code>duration_days</code></td>
+                                <th scope="row"><code>duration_days</code></th>
                                 <td class="num">2.6250</td>
                                 <td class="num">650.55</td>
                                 <td class="num">3.7812</td>
@@ -1077,7 +1084,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">4.5%</td>
                             </tr>
                             <tr>
-                                <td><code>longitude</code></td>
+                                <th scope="row"><code>longitude</code></th>
                                 <td class="num">123.74</td>
                                 <td class="num">3.3239</td>
                                 <td class="num">123.03</td>
@@ -1086,7 +1093,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">48.0%</td>
                             </tr>
                             <tr>
-                                <td><code>best</code></td>
+                                <th scope="row"><code>best</code></th>
                                 <td class="num">4.2944</td>
                                 <td class="num">431.62</td>
                                 <td class="num">6.7750</td>
@@ -1095,7 +1102,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">4.2%</td>
                             </tr>
                             <tr>
-                                <td><code>deaths_a</code></td>
+                                <th scope="row"><code>deaths_a</code></th>
                                 <td class="num">1.6624</td>
                                 <td class="num">136.07</td>
                                 <td class="num">1.1757</td>
@@ -1104,7 +1111,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">3.6%</td>
                             </tr>
                             <tr>
-                                <td><code>latitude</code></td>
+                                <th scope="row"><code>latitude</code></th>
                                 <td class="num">11.14</td>
                                 <td class="num">11.229</td>
                                 <td class="num">6.89</td>
@@ -1113,7 +1120,7 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
                                 <td class="num">0.9%</td>
                             </tr>
                             <tr class="group-start row-fail">
-                                <td><strong>Net Log-Posterior Gap</strong></td>
+                                <th scope="row"><strong>Net Log-Posterior Gap</strong></th>
                                 <td colspan="4"><em>Sum across prior + all 8 features (median across 333 Mindanao test
                                         events)</em></td>
                                 <td class="num anomaly"><strong>+5.2431</strong></td>
@@ -1228,14 +1235,15 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
             <ul>
                 <li>Uppsala Conflict Data Program (UCDP) &amp; Humanitarian Data Exchange (HDX). <em>Conflict Data for
                         Philippines</em>. Retrieved from <a
-                        href="https://data.humdata.org/dataset/ucdp-data-for-philippines/resource/903916a3-b456-4b9f-a277-529013d7139a">https://data.humdata.org/dataset/ucdp-data-for-philippines/resource/903916a3-b456-4b9f-a277-529013d7139a</a>
+                        href="https://data.humdata.org/dataset/ucdp-data-for-philippines/resource/903916a3-b456-4b9f-a277-529013d7139a"
+                        target="_blank" rel="noopener">https://data.humdata.org/dataset/ucdp-data-for-philippines/resource/903916a3-b456-4b9f-a277-529013d7139a</a>
                 </li>
                 <li>Python Software Foundation. <em>Python 3 Standard Library Documentation</em> (<code>csv</code>,
                     <code>math</code>, <code>random</code>, <code>datetime</code>, <code>os</code>). <a
-                        href="https://docs.python.org/3/">https://docs.python.org/3/</a>
+                        href="https://docs.python.org/3/" target="_blank" rel="noopener">https://docs.python.org/3/</a>
                 </li>
                 <li>Hunter, J. D. (2007). <em>Matplotlib: A 2D Graphics Environment</em>. Computing in Science &amp;
-                    Engineering, 9(3), 90–95. <a href="https://matplotlib.org/">https://matplotlib.org/</a></li>
+                    Engineering, 9(3), 90–95. <a href="https://matplotlib.org/" target="_blank" rel="noopener">https://matplotlib.org/</a></li>
                 <li>CMSC 170 (Introduction to Artificial Intelligence) Course Lecture Materials on K-Nearest Neighbors,
                     Naive
                     Bayes, Perceptron, and Machine Learning Evaluation Metrics, University of the Philippines Los
@@ -1264,6 +1272,46 @@ Log-likelihood gap (CPP - Mindanao) on type_of_violence = 1             = +8.366
         <span>Gem in AI &middot; CMSC 170 EF-6L &middot; University of the Philippines Los Ba&ntilde;os</span>
         <a href="#top">Back to top</a>
     </footer>
+
+    <script>
+        const navLinks = new Map(
+            Array.from(document.querySelectorAll("nav a[href^='#']"), (a) => [a.getAttribute("href").slice(1), a])
+        );
+        const navList = document.querySelector("nav ol");
+        const sections = Array.from(document.querySelectorAll("main section[id]"));
+        const setCurrent = (id) => {
+            navLinks.forEach((link, key) => {
+                if (key === id) {
+                    link.setAttribute("aria-current", "location");
+                    if (navList && navList.scrollWidth > navList.clientWidth) {
+                        const targetLeft = link.offsetLeft - (navList.clientWidth - link.offsetWidth) / 2;
+                        navList.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
+                    }
+                } else {
+                    link.removeAttribute("aria-current");
+                }
+            });
+        };
+
+        navLinks.forEach((link, id) => link.addEventListener("click", () => setCurrent(id)));
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries.filter((e) => e.isIntersecting);
+                if (visible.length) setCurrent(visible[0].target.id);
+            },
+            { rootMargin: "-15% 0px -75% 0px" }
+        );
+        sections.forEach((s) => observer.observe(s));
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY < 120) {
+                setCurrent(null);
+            } else if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+                setCurrent(sections[sections.length - 1].id);
+            }
+        }, { passive: true });
+    </script>
 
 </body>
 

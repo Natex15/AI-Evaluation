@@ -15,6 +15,11 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 body {
   max-width: var(--wide);
   margin: 0 auto;
@@ -27,6 +32,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  padding: 0.45rem 0.9rem;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 40;
+}
+.skip-link:focus { left: 1rem; top: 1rem; }
+
 a {
   color: var(--ink);
   text-decoration: underline;
@@ -36,16 +55,24 @@ a {
 }
 a:hover { color: var(--accent); text-decoration-color: var(--accent); }
 
+a:focus-visible,
+summary:focus-visible,
+.table-scroll:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
 code { font-family: var(--font-mono); font-size: 0.87em; font-variant-numeric: tabular-nums; }
 
 .formula {
   display: block;
   margin-block: 0.65rem;
-  padding: 0.35rem 0 0.35rem 1rem;
+  padding: 0.45rem 0 0.45rem 1rem;
   border-left: 2px solid var(--border);
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  font-size: 0.84rem;
+  white-space: pre;
+  overflow-x: auto;
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 
 .kicker {
@@ -57,18 +84,27 @@ code { font-family: var(--font-mono); font-size: 0.87em; font-variant-numeric: t
   color: var(--accent);
 }
 
+.math-sym { text-transform: none; }
 .anomaly { color: var(--accent); font-weight: 600; }
 
 /* Masthead */
 header { border-top: 3px solid var(--ink); padding-top: 1.35rem; }
 
 h1 {
-  margin: 0.35rem 0 1.25rem;
+  margin: 0.35rem 0 0.9rem;
   font-family: var(--font-serif);
   font-size: clamp(2.1rem, 4.3vw, 3.2rem);
   font-weight: 700;
   line-height: 1.09;
   letter-spacing: -0.02em;
+}
+
+.deck {
+  max-width: 48rem;
+  margin: 0 0 1.25rem;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--muted);
 }
 
 .byline {
@@ -85,6 +121,8 @@ h1 {
 }
 .byline strong { color: var(--ink); font-weight: 600; }
 .byline-links { display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; font-family: var(--font-mono); font-size: 0.77rem; }
+.byline-links a::after { content: " \2197"; font-size: 0.85em; color: var(--muted); }
+.byline-links a:hover::after { color: var(--accent); }
 
 /* Above-the-Fold Findings Strip */
 .findings {
@@ -109,24 +147,54 @@ h1 {
 }
 .findings dd span { display: block; font-size: 0.8rem; line-height: 1.45; color: var(--muted); }
 
-/* Jump Navigation */
+/* Minimal Sticky Section Navigation */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  margin: 0 0 2.75rem;
+  border-bottom: 2px solid var(--ink);
+}
 nav ol {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-between;
-  gap: 0.45rem 1.25rem;
+  gap: 0.5rem 1.25rem;
   list-style: none;
-  margin: 0 0 2.75rem;
-  padding: 0.85rem 0;
-  border-bottom: 2px solid var(--ink);
-  font-size: 0.82rem;
+  margin: 0;
+  padding: 0.72rem 0;
+  font-size: 0.81rem;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-nav a { text-decoration: none; color: var(--muted); }
-nav a:hover { color: var(--ink); text-decoration: underline; }
-nav span { font-family: var(--font-mono); font-size: 0.74rem; margin-right: 0.3rem; color: var(--ink); }
+nav ol::-webkit-scrollbar { display: none; }
+nav li { flex-shrink: 0; margin-bottom: 0; }
+nav a {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--muted);
+  white-space: nowrap;
+}
+nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 0.3em; }
+nav span { font-family: var(--font-mono); font-size: 0.72rem; margin-right: 0.3rem; color: var(--muted); }
+nav a[aria-current="location"] {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.32em;
+  text-decoration-thickness: 1.5px;
+}
+nav a[aria-current="location"] span { color: var(--accent); }
 
 /* Sections, Prose Measure & Breakout Rhythm */
-main section { padding-top: 2.75rem; margin-top: 2.75rem; border-top: 1px solid var(--border); }
+main section {
+  scroll-margin-top: 4rem;
+  padding-top: 2.75rem;
+  margin-top: 2.75rem;
+  border-top: 1px solid var(--border);
+}
 main section:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
 main section > :not(figure):not(details) { max-width: var(--measure); margin-inline: auto; }
 
@@ -163,13 +231,15 @@ figcaption strong { color: var(--ink); font-weight: 600; }
 table { width: 100%; min-width: 640px; border-collapse: collapse; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); font-size: 0.87rem; }
 th, td { padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
 thead th { font-size: 0.71rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid var(--ink); vertical-align: bottom; }
+tbody th { font-weight: 400; border-bottom: 1px solid var(--border); }
 tbody td { border-bottom: 1px solid var(--border); }
+tbody tr:last-child th,
 tbody tr:last-child td { border-bottom: none; }
 th.num { text-align: right; }
 td.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.group-start td { border-top: 1px solid var(--ink); }
-.row-win td { background: var(--tint-win); font-weight: 600; }
-.row-fail td { background: var(--tint-fail); }
+.group-start th, .group-start td { border-top: 1px solid var(--ink); }
+.row-win th, .row-win td { background: var(--tint-win); font-weight: 600; }
+.row-fail th, .row-fail td { background: var(--tint-fail); }
 
 /* Collapsible Raw Data Tables */
 details { margin: -1rem auto 2.5rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -188,7 +258,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.
   .findings { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 0; }
   .findings > div:nth-child(3) { padding-left: 0; border-left: none; }
   .findings > div:nth-child(n + 3) { padding-top: 1.15rem; border-top: 1px solid var(--border); }
-  nav ol { justify-content: flex-start; }
+  nav ol { justify-content: flex-start; gap: 1.15rem; }
 }
 
 @media (max-width: 520px) {
